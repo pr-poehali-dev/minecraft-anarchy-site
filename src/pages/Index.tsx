@@ -16,6 +16,7 @@ export default function Index() {
   const [buyDialogOpen, setBuyDialogOpen] = useState(false);
   const [selectedPrivilege, setSelectedPrivilege] = useState<Privilege | null>(null);
   const [content, setContent] = useState<{ [key: string]: string }>({});
+  const [playNowDialog, setPlayNowDialog] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -140,6 +141,7 @@ export default function Index() {
             <Button 
               size="lg" 
               className="gap-2 bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity"
+              onClick={() => setPlayNowDialog(true)}
             >
               <Icon name="Pickaxe" size={20} />
               Играть сейчас
@@ -222,21 +224,10 @@ export default function Index() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
               {privileges.map((privilege) => (
                 <Card key={privilege.id} className="p-6 bg-card/50 backdrop-blur border-border hover:border-primary/50 transition-all overflow-hidden">
-                  {privilege.image_url && (
-                    <div className="mb-4 -mx-6 -mt-6">
-                      <img 
-                        src={privilege.image_url} 
-                        alt={privilege.name}
-                        className="w-full h-48 object-cover"
-                      />
-                    </div>
-                  )}
                   <div className="mb-4">
-                    {!privilege.image_url && (
-                      <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/20 mb-4">
-                        <Icon name="Crown" size={24} className="text-primary" />
-                      </div>
-                    )}
+                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/20 mb-4">
+                      <Icon name="Crown" size={24} className="text-primary" />
+                    </div>
                     <h3 className="text-2xl font-bold mb-2">{privilege.name}</h3>
                     <p className="text-muted-foreground text-sm mb-4">{privilege.description}</p>
                   </div>
@@ -358,6 +349,33 @@ export default function Index() {
           <p>© 2025 Anarchist Empire. </p>
         </div>
       </footer>
+
+      <Dialog open={playNowDialog} onOpenChange={setPlayNowDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Как начать играть</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-muted-foreground">
+              Чтобы начать играть на сервере, сначала ознакомьтесь с правилами проекта. 
+              Затем скачайте и запустите клиент или лаунчер игры, подключитесь к серверу по его IP-адресу, 
+              авторизуйтесь и начните играть.
+            </p>
+            <div className="bg-muted p-4 rounded-lg">
+              <p className="text-sm text-muted-foreground mb-2">IP адрес сервера:</p>
+              <code className="text-xl font-mono font-bold text-primary">
+                {content.server_ip || 'play.anarchist-empire.ru'}
+              </code>
+            </div>
+            <Button 
+              className="w-full"
+              onClick={() => setPlayNowDialog(false)}
+            >
+              Понятно
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
