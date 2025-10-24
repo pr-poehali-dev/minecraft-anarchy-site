@@ -1,12 +1,58 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
+import { api, type Privilege } from '@/lib/api';
 
 export default function Index() {
   const [activeSection, setActiveSection] = useState('home');
+  const [privileges, setPrivileges] = useState<Privilege[]>([]);
+  const [buyDialogOpen, setBuyDialogOpen] = useState(false);
+  const [selectedPrivilege, setSelectedPrivilege] = useState<Privilege | null>(null);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    loadPrivileges();
+  }, []);
+
+  const loadPrivileges = async () => {
+    try {
+      const data = await api.privileges.list();
+      setPrivileges(data);
+    } catch (error) {
+      console.error('Failed to load privileges');
+    }
+  };
+
+  const handleBuyPrivilege = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!selectedPrivilege) return;
+
+    const formData = new FormData(e.currentTarget);
+    const playerName = formData.get('player_name') as string;
+    const playerEmail = formData.get('player_email') as string;
+
+    try {
+      await api.orders.create(selectedPrivilege.id, playerName, playerEmail);
+      toast({
+        title: 'Заказ создан!',
+        description: 'Мы свяжемся с вами в ближайшее время',
+      });
+      setBuyDialogOpen(false);
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось создать заказ',
+        variant: 'destructive',
+      });
+    }
+  };
 
   const scrollToSection = (section: string) => {
     setActiveSection(section);
@@ -149,12 +195,77 @@ export default function Index() {
             </p>
           </div>
 
-          <div className="text-center py-12">
-            <div className="inline-flex items-center gap-2 text-muted-foreground bg-card/50 px-6 py-4 rounded-lg border border-border">
-              <Icon name="Construction" size={24} />
-              <p>Привилегии добавляются администратором</p>
+          {privileges.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="inline-flex items-center gap-2 text-muted-foreground bg-card/50 px-6 py-4 rounded-lg border border-border">
+                <Icon name="Construction" size={24} />
+                <p>Привилегии добавляются администратором</p>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+              {privileges.map((privilege) => (
+                <Card key={privilege.id} className="p-6 bg-card/50 backdrop-blur border-border hover:border-primary/50 transition-all">
+                  <div className="mb-4">
+                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/20 mb-4">
+                      <Icon name="Crown" size={24} className="text-primary" />
+                    </div>
+                    <h3 className="text-2xl font-bold mb-2">{privilege.name}</h3>
+                    <p className="text-muted-foreground text-sm mb-4">{privilege.description}</p>
+                  </div>
+
+                  <div className="space-y-2 mb-6">
+                    {privilege.features.map((feature, idx) => (
+                      <div key={idx} className="flex items-center gap-2 text-sm">
+                        <Icon name="Check" size={16} className="text-accent" />
+                        <span>{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="pt-4 border-t border-border">
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-3xl font-bold text-primary">{privilege.price} ₽</span>
+                    </div>
+                    <Dialog open={buyDialogOpen && selectedPrivilege?.id === privilege.id} onOpenChange={(open) => {
+                      setBuyDialogOpen(open);
+                      if (!open) setSelectedPrivilege(null);
+                    }}>
+                      <DialogTrigger asChild>
+                        <Button 
+                          className="w-full gap-2" 
+                          onClick={() => setSelectedPrivilege(privilege)}
+                        >
+                          <Icon name="ShoppingCart" size={16} />
+                          Купить
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Заказ привилегии: {privilege.name}</DialogTitle>
+                        </DialogHeader>
+                        <form onSubmit={handleBuyPrivilege} className="space-y-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="player_name">Ваш ник в игре</Label>
+                            <Input id="player_name" name="player_name" required placeholder="Steve" />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="player_email">Email для связи</Label>
+                            <Input id="player_email" name="player_email" type="email" required placeholder="steve@minecraft.com" />
+                          </div>
+                          <div className="bg-muted p-4 rounded-lg">
+                            <p className="text-sm text-muted-foreground mb-2">К оплате:</p>
+                            <p className="text-2xl font-bold text-primary">{privilege.price} ₽</p>
+                          </div>
+                          <Button type="submit" className="w-full">Оформить заказ</Button>
+                        </form>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

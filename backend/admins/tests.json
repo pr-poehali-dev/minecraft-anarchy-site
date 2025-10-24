@@ -1,0 +1,12 @@
+{
+  "tests": [
+    {
+      "name": "Get all admins",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": [{"username": "string"}],
+      "bodyMatcher": "partial"
+    }
+  ]
+}
