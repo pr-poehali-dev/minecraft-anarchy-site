@@ -450,7 +450,7 @@ export default function Admin() {
                             Игрок: {order.player_name}
                           </p>
                           <p className="text-sm text-muted-foreground mb-2">
-                            Телефон: {order.player_phone || 'не указан'} | Email: {order.player_email || 'не указан'}
+                            Телефон: {order.player_phone || 'не указан'} | Telegram: {order.player_email || 'не указан'}
                           </p>
                           <p className="text-xs text-muted-foreground">
                             {new Date(order.created_at).toLocaleString('ru-RU')}
