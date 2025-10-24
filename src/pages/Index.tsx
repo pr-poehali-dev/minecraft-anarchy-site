@@ -355,7 +355,7 @@ export default function Index() {
 
       <footer className="py-8 border-t border-border">
         <div className="container px-4 mx-auto text-center text-sm text-muted-foreground">
-          <p>© 2024 Anarchist Empire. Администратор: skzry</p>
+          <p>© 2025 Anarchist Empire. </p>
         </div>
       </footer>
     </div>
