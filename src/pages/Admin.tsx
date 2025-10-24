@@ -108,6 +108,7 @@ export default function Admin() {
     const formData = new FormData(e.currentTarget);
     const featuresText = formData.get('features') as string;
     const features = featuresText.split('\n').filter(f => f.trim());
+    const imageUrl = formData.get('image_url') as string;
     
     try {
       await api.privileges.create({
@@ -115,6 +116,7 @@ export default function Admin() {
         description: formData.get('description') as string,
         price: parseFloat(formData.get('price') as string),
         features,
+        image_url: imageUrl || undefined,
       });
       
       toast({
@@ -367,6 +369,11 @@ export default function Admin() {
                         <Label htmlFor="priv-features">Возможности (по одной на строку)</Label>
                         <Textarea id="priv-features" name="features" rows={5} placeholder="Fly mode&#10;Kit access&#10;Home teleport" />
                       </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="priv-image">URL изображения</Label>
+                        <Input id="priv-image" name="image_url" type="url" placeholder="https://example.com/image.png" />
+                        <p className="text-xs text-muted-foreground">Вставьте ссылку на изображение привилегии</p>
+                      </div>
                       <Button type="submit" className="w-full">Создать</Button>
                     </form>
                   </DialogContent>
@@ -382,7 +389,14 @@ export default function Admin() {
                 <div className="grid gap-4">
                   {privileges.map((priv) => (
                     <Card key={priv.id} className="p-4">
-                      <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-4 justify-between">
+                        {priv.image_url && (
+                          <img 
+                            src={priv.image_url} 
+                            alt={priv.name}
+                            className="w-24 h-24 object-cover rounded-lg"
+                          />
+                        )}
                         <div className="flex-1">
                           <h3 className="text-lg font-bold mb-2">{priv.name}</h3>
                           <p className="text-sm text-muted-foreground mb-3">{priv.description}</p>
@@ -425,7 +439,10 @@ export default function Admin() {
                         <div className="flex-1">
                           <h3 className="font-bold mb-1">{order.privilege_name}</h3>
                           <p className="text-sm text-muted-foreground mb-2">
-                            Игрок: {order.player_name} | {order.player_email}
+                            Игрок: {order.player_name}
+                          </p>
+                          <p className="text-sm text-muted-foreground mb-2">
+                            Телефон: {order.player_phone || 'не указан'} | Email: {order.player_email || 'не указан'}
                           </p>
                           <p className="text-xs text-muted-foreground">
                             {new Date(order.created_at).toLocaleString('ru-RU')}

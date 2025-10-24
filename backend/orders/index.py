@@ -36,7 +36,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     if method == 'GET':
         cur.execute(
             """
-            SELECT o.id, o.privilege_id, p.name, o.player_name, o.player_email, o.status, o.created_at
+            SELECT o.id, o.privilege_id, p.name, o.player_name, o.player_email, o.player_phone, o.status, o.created_at
             FROM orders o
             JOIN privileges p ON o.privilege_id = p.id
             ORDER BY o.created_at DESC
@@ -52,8 +52,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'privilege_name': row[2],
                 'player_name': row[3],
                 'player_email': row[4],
-                'status': row[5],
-                'created_at': row[6].isoformat() if row[6] else None
+                'player_phone': row[5],
+                'status': row[6],
+                'created_at': row[7].isoformat() if row[7] else None
             })
         
         cur.close()
@@ -74,8 +75,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         privilege_id = body_data.get('privilege_id')
         player_name = body_data.get('player_name')
         player_email = body_data.get('player_email', '')
+        player_phone = body_data.get('player_phone', '')
         
-        if not privilege_id or not player_name:
+        if not privilege_id or not player_name or not player_phone:
             cur.close()
             conn.close()
             return {
@@ -84,13 +86,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'Content-Type': 'application/json',
                     'Access-Control-Allow-Origin': '*'
                 },
-                'body': json.dumps({'error': 'Privilege ID and player name required'}),
+                'body': json.dumps({'error': 'Privilege ID, player name, and phone required'}),
                 'isBase64Encoded': False
             }
         
         cur.execute(
-            "INSERT INTO orders (privilege_id, player_name, player_email, status) VALUES (%s, %s, %s, %s) RETURNING id",
-            (int(privilege_id), player_name, player_email, 'pending')
+            "INSERT INTO orders (privilege_id, player_name, player_email, player_phone, status) VALUES (%s, %s, %s, %s, %s) RETURNING id",
+            (int(privilege_id), player_name, player_email, player_phone, 'pending')
         )
         
         order_id = cur.fetchone()[0]

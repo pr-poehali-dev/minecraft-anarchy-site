@@ -36,10 +36,11 @@ export default function Index() {
 
     const formData = new FormData(e.currentTarget);
     const playerName = formData.get('player_name') as string;
+    const playerPhone = formData.get('player_phone') as string;
     const playerEmail = formData.get('player_email') as string;
 
     try {
-      await api.orders.create(selectedPrivilege.id, playerName, playerEmail);
+      await api.orders.create(selectedPrivilege.id, playerName, playerPhone, playerEmail);
       toast({
         title: 'Заказ создан!',
         description: 'Мы свяжемся с вами в ближайшее время',
@@ -205,11 +206,22 @@ export default function Index() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
               {privileges.map((privilege) => (
-                <Card key={privilege.id} className="p-6 bg-card/50 backdrop-blur border-border hover:border-primary/50 transition-all">
-                  <div className="mb-4">
-                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/20 mb-4">
-                      <Icon name="Crown" size={24} className="text-primary" />
+                <Card key={privilege.id} className="p-6 bg-card/50 backdrop-blur border-border hover:border-primary/50 transition-all overflow-hidden">
+                  {privilege.image_url && (
+                    <div className="mb-4 -mx-6 -mt-6">
+                      <img 
+                        src={privilege.image_url} 
+                        alt={privilege.name}
+                        className="w-full h-48 object-cover"
+                      />
                     </div>
+                  )}
+                  <div className="mb-4">
+                    {!privilege.image_url && (
+                      <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/20 mb-4">
+                        <Icon name="Crown" size={24} className="text-primary" />
+                      </div>
+                    )}
                     <h3 className="text-2xl font-bold mb-2">{privilege.name}</h3>
                     <p className="text-muted-foreground text-sm mb-4">{privilege.description}</p>
                   </div>
@@ -250,8 +262,12 @@ export default function Index() {
                             <Input id="player_name" name="player_name" required placeholder="Steve" />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="player_email">Email для связи</Label>
-                            <Input id="player_email" name="player_email" type="email" required placeholder="steve@minecraft.com" />
+                            <Label htmlFor="player_phone">Телефон для связи</Label>
+                            <Input id="player_phone" name="player_phone" type="tel" required placeholder="+7 (999) 123-45-67" />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="player_email">Email (необязательно)</Label>
+                            <Input id="player_email" name="player_email" type="email" placeholder="steve@minecraft.com" />
                           </div>
                           <div className="bg-muted p-4 rounded-lg">
                             <p className="text-sm text-muted-foreground mb-2">К оплате:</p>

@@ -36,7 +36,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     if method == 'GET':
         cur.execute(
-            "SELECT id, name, description, price, features, is_active FROM privileges WHERE is_active = true ORDER BY price"
+            "SELECT id, name, description, price, features, is_active, image_url FROM privileges WHERE is_active = true ORDER BY price"
         )
         rows = cur.fetchall()
         
@@ -48,7 +48,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'description': row[2],
                 'price': float(row[3]),
                 'features': row[4],
-                'is_active': row[5]
+                'is_active': row[5],
+                'image_url': row[6]
             })
         
         cur.close()
@@ -70,6 +71,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         description = body_data.get('description', '')
         price = body_data.get('price')
         features = body_data.get('features', [])
+        image_url = body_data.get('image_url')
         
         if not name or price is None:
             cur.close()
@@ -85,8 +87,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         cur.execute(
-            "INSERT INTO privileges (name, description, price, features) VALUES (%s, %s, %s, %s) RETURNING id",
-            (name, description, float(price), features)
+            "INSERT INTO privileges (name, description, price, features, image_url) VALUES (%s, %s, %s, %s, %s) RETURNING id",
+            (name, description, float(price), features, image_url)
         )
         
         privilege_id = cur.fetchone()[0]

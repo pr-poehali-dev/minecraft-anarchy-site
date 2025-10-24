@@ -31,6 +31,7 @@ export interface Privilege {
   price: number;
   features: string[];
   is_active: boolean;
+  image_url?: string;
 }
 
 export interface Order {
@@ -39,6 +40,7 @@ export interface Order {
   privilege_name: string;
   player_name: string;
   player_email: string;
+  player_phone: string;
   status: string;
   created_at: string;
 }
@@ -85,7 +87,7 @@ export const api = {
       return response.json();
     },
     
-    create: async (data: { name: string; description: string; price: number; features: string[] }): Promise<{ success: boolean; id?: number; error?: string }> => {
+    create: async (data: { name: string; description: string; price: number; features: string[]; image_url?: string }): Promise<{ success: boolean; id?: number; error?: string }> => {
       const response = await fetch(API_URLS.privileges, {
         method: 'POST',
         headers: {
@@ -110,13 +112,13 @@ export const api = {
       return response.json();
     },
     
-    create: async (privilege_id: number, player_name: string, player_email: string): Promise<{ success: boolean; order_id?: number }> => {
+    create: async (privilege_id: number, player_name: string, player_phone: string, player_email?: string): Promise<{ success: boolean; order_id?: number }> => {
       const response = await fetch(API_URLS.orders, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ privilege_id, player_name, player_email }),
+        body: JSON.stringify({ privilege_id, player_name, player_phone, player_email }),
       });
       return response.json();
     },
