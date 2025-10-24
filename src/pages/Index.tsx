@@ -273,7 +273,7 @@ export default function Index() {
                           </div>
                           <div className="space-y-2">
                             <Label htmlFor="player_email">Telegram</Label>
-                            <Input id="player_email" name="player_email" type="email" placeholder="steve@minecraft.com" />
+                            <Input id="player_email" name="player_email" type="text" placeholder="@durov" />
                           </div>
                           <div className="bg-muted p-4 rounded-lg">
                             <p className="text-sm text-muted-foreground mb-2">К оплате:</p>
