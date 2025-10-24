@@ -389,11 +389,6 @@ export default function Admin() {
                         <Label htmlFor="priv-features">Возможности (по одной на строку)</Label>
                         <Textarea id="priv-features" name="features" rows={5} placeholder="Fly mode&#10;Kit access&#10;Home teleport" />
                       </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="priv-image">URL изображения</Label>
-                        <Input id="priv-image" name="image_url" type="url" placeholder="https://example.com/image.png" />
-                        <p className="text-xs text-muted-foreground">Вставьте ссылку на изображение привилегии</p>
-                      </div>
                       <Button type="submit" className="w-full">Создать</Button>
                     </form>
                   </DialogContent>
@@ -410,13 +405,6 @@ export default function Admin() {
                   {privileges.map((priv) => (
                     <Card key={priv.id} className="p-4">
                       <div className="flex items-start gap-4 justify-between">
-                        {priv.image_url && (
-                          <img 
-                            src={priv.image_url} 
-                            alt={priv.name}
-                            className="w-24 h-24 object-cover rounded-lg"
-                          />
-                        )}
                         <div className="flex-1">
                           <h3 className="text-lg font-bold mb-2">{priv.name}</h3>
                           <p className="text-sm text-muted-foreground mb-3">{priv.description}</p>

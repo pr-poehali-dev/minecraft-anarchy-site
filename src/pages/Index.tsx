@@ -224,21 +224,10 @@ export default function Index() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
               {privileges.map((privilege) => (
                 <Card key={privilege.id} className="p-6 bg-card/50 backdrop-blur border-border hover:border-primary/50 transition-all overflow-hidden">
-                  {privilege.image_url && (
-                    <div className="mb-4 -mx-6 -mt-6">
-                      <img 
-                        src={privilege.image_url} 
-                        alt={privilege.name}
-                        className="w-full h-48 object-cover"
-                      />
-                    </div>
-                  )}
                   <div className="mb-4">
-                    {!privilege.image_url && (
-                      <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/20 mb-4">
-                        <Icon name="Crown" size={24} className="text-primary" />
-                      </div>
-                    )}
+                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/20 mb-4">
+                      <Icon name="Crown" size={24} className="text-primary" />
+                    </div>
                     <h3 className="text-2xl font-bold mb-2">{privilege.name}</h3>
                     <p className="text-muted-foreground text-sm mb-4">{privilege.description}</p>
                   </div>
