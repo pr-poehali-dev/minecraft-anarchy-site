@@ -272,7 +272,7 @@ export default function Index() {
                             <Input id="player_phone" name="player_phone" type="tel" required placeholder="+7 (999) 123-45-67" />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="player_email">Email (необязательно)</Label>
+                            <Label htmlFor="player_email">Telegram</Label>
                             <Input id="player_email" name="player_email" type="email" placeholder="steve@minecraft.com" />
                           </div>
                           <div className="bg-muted p-4 rounded-lg">
