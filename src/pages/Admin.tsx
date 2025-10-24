@@ -453,7 +453,7 @@ export default function Admin() {
                             Телефон: {order.player_phone || 'не указан'} | Telegram: {order.player_email || 'не указан'}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {new Date(order.created_at).toLocaleString('ru-RU')}
+                            {new Date(order.created_at).toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })}
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
