@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
-import { api, type Admin as AdminType, type Privilege, type Order, type ContentData, type FAQ } from '@/lib/api';
+import { api, type Admin as AdminType, type Privilege, type Order, type ContentData } from '@/lib/api';
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -22,33 +22,27 @@ export default function Admin() {
   const [privileges, setPrivileges] = useState<Privilege[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [content, setContent] = useState<ContentData>({});
-  const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [loading, setLoading] = useState(false);
 
   const [newAdminDialog, setNewAdminDialog] = useState(false);
   const [newPrivilegeDialog, setNewPrivilegeDialog] = useState(false);
-  const [newFaqDialog, setNewFaqDialog] = useState(false);
-  const [editFaqDialog, setEditFaqDialog] = useState(false);
-  const [selectedFaq, setSelectedFaq] = useState<FAQ | null>(null);
 
   const loadData = async () => {
     if (!isAuthenticated) return;
     
     setLoading(true);
     try {
-      const [adminsData, privilegesData, ordersData, contentData, faqsData] = await Promise.all([
+      const [adminsData, privilegesData, ordersData, contentData] = await Promise.all([
         api.admins.list(),
         api.privileges.list(),
         api.orders.list(),
         api.content.get(),
-        api.faqs.list(),
       ]);
       
       setAdmins(adminsData);
       setPrivileges(privilegesData);
       setOrders(ordersData);
       setContent(contentData);
-      setFaqs(faqsData);
     } catch (error) {
       toast({
         title: 'Ошибка загрузки',
@@ -210,72 +204,7 @@ export default function Admin() {
     }
   };
 
-  const handleCreateFaq = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const question = formData.get('question') as string;
-    const answer = formData.get('answer') as string;
-    const order_index = parseInt(formData.get('order_index') as string);
 
-    try {
-      await api.faqs.create(question, answer, order_index);
-      toast({
-        title: 'Создано',
-        description: 'FAQ успешно добавлен',
-      });
-      setNewFaqDialog(false);
-      loadData();
-    } catch (error) {
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось создать FAQ',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleUpdateFaq = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!selectedFaq) return;
-
-    const formData = new FormData(e.currentTarget);
-    const question = formData.get('question') as string;
-    const answer = formData.get('answer') as string;
-
-    try {
-      await api.faqs.update(selectedFaq.id, question, answer);
-      toast({
-        title: 'Обновлено',
-        description: 'FAQ успешно изменен',
-      });
-      setEditFaqDialog(false);
-      setSelectedFaq(null);
-      loadData();
-    } catch (error) {
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось обновить FAQ',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleDeleteFaq = async (id: number) => {
-    try {
-      await api.faqs.delete(id);
-      toast({
-        title: 'Удалено',
-        description: 'FAQ удален',
-      });
-      loadData();
-    } catch (error) {
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось удалить FAQ',
-        variant: 'destructive',
-      });
-    }
-  };
 
   if (!isAuthenticated) {
     return (
@@ -375,10 +304,7 @@ export default function Admin() {
               <Icon name="Crown" size={16} className="mr-2" />
               Привилегии ({privileges.length})
             </TabsTrigger>
-            <TabsTrigger value="faqs">
-              <Icon name="HelpCircle" size={16} className="mr-2" />
-              FAQ ({faqs.length})
-            </TabsTrigger>
+
             <TabsTrigger value="orders">
               <Icon name="ShoppingCart" size={16} className="mr-2" />
               Заказы ({orders.length})
@@ -515,106 +441,6 @@ export default function Admin() {
               )}
             </Card>
           </TabsContent>
-
-          <TabsContent value="faqs" className="space-y-6">
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold">FAQ</h2>
-                <Dialog open={newFaqDialog} onOpenChange={setNewFaqDialog}>
-                  <DialogTrigger asChild>
-                    <Button className="gap-2">
-                      <Icon name="Plus" size={16} />
-                      Добавить вопрос
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Новый FAQ</DialogTitle>
-                    </DialogHeader>
-                    <form onSubmit={handleCreateFaq} className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="faq-question">Вопрос</Label>
-                        <Input id="faq-question" name="question" required />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="faq-answer">Ответ</Label>
-                        <Textarea id="faq-answer" name="answer" rows={4} required />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="faq-order">Порядковый номер</Label>
-                        <Input id="faq-order" name="order_index" type="number" defaultValue={faqs.length + 1} required />
-                        <p className="text-xs text-muted-foreground">Определяет порядок отображения на сайте</p>
-                      </div>
-                      <Button type="submit" className="w-full">Создать</Button>
-                    </form>
-                  </DialogContent>
-                </Dialog>
-              </div>
-
-              {faqs.length === 0 ? (
-                <div className="text-center py-12 text-muted-foreground">
-                  <Icon name="HelpCircle" size={48} className="mx-auto mb-4 opacity-50" />
-                  <p>FAQ пока не добавлены</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {faqs.sort((a, b) => a.order_index - b.order_index).map((faq) => (
-                    <Card key={faq.id} className="p-4 border-border">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1 space-y-2">
-                          <div className="flex items-center gap-2">
-                            <Badge variant="outline" className="text-xs">#{faq.order_index}</Badge>
-                            <h3 className="font-semibold">{faq.question}</h3>
-                          </div>
-                          <p className="text-sm text-muted-foreground">{faq.answer}</p>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => {
-                              setSelectedFaq(faq);
-                              setEditFaqDialog(true);
-                            }}
-                          >
-                            <Icon name="Pencil" size={14} />
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="destructive"
-                            onClick={() => handleDeleteFaq(faq.id)}
-                          >
-                            <Icon name="Trash2" size={14} />
-                          </Button>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </Card>
-          </TabsContent>
-
-          <Dialog open={editFaqDialog} onOpenChange={setEditFaqDialog}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Редактировать FAQ</DialogTitle>
-              </DialogHeader>
-              {selectedFaq && (
-                <form onSubmit={handleUpdateFaq} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="edit-faq-question">Вопрос</Label>
-                    <Input id="edit-faq-question" name="question" defaultValue={selectedFaq.question} required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="edit-faq-answer">Ответ</Label>
-                    <Textarea id="edit-faq-answer" name="answer" rows={4} defaultValue={selectedFaq.answer} required />
-                  </div>
-                  <Button type="submit" className="w-full">Сохранить</Button>
-                </form>
-              )}
-            </DialogContent>
-          </Dialog>
 
           <TabsContent value="orders" className="space-y-6">
             <Card className="p-6">
