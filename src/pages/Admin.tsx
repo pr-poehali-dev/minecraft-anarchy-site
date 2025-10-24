@@ -57,6 +57,16 @@ export default function Admin() {
     loadData();
   }, [isAuthenticated]);
 
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    
+    const interval = setInterval(() => {
+      loadData();
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
