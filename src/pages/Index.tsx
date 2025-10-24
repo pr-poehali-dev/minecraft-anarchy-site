@@ -15,11 +15,26 @@ export default function Index() {
   const [privileges, setPrivileges] = useState<Privilege[]>([]);
   const [buyDialogOpen, setBuyDialogOpen] = useState(false);
   const [selectedPrivilege, setSelectedPrivilege] = useState<Privilege | null>(null);
+  const [content, setContent] = useState<{ [key: string]: string }>({});
   const { toast } = useToast();
 
   useEffect(() => {
-    loadPrivileges();
+    loadData();
   }, []);
+
+  const loadData = async () => {
+    loadPrivileges();
+    loadContent();
+  };
+
+  const loadContent = async () => {
+    try {
+      const data = await api.content.get();
+      setContent(data);
+    } catch (error) {
+      console.error('Failed to load content');
+    }
+  };
 
   const loadPrivileges = async () => {
     try {
@@ -67,7 +82,7 @@ export default function Index() {
         <div className="container flex items-center justify-between h-16 px-4 mx-auto">
           <div className="flex items-center gap-2 text-2xl font-bold">
             <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              ANARCHIST EMPIRE
+              {content.hero_title || 'ANARCHIST EMPIRE'}
             </span>
           </div>
           
@@ -113,12 +128,12 @@ export default function Index() {
           
           <h1 className="mb-6 text-5xl font-bold tracking-tight md:text-7xl">
             <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-              ANARCHIST EMPIRE
+              {content.hero_title || 'ANARCHIST EMPIRE'}
             </span>
           </h1>
           
           <p className="mb-8 text-xl text-muted-foreground max-w-2xl mx-auto">
-            Настоящая анархия без правил. Выживай, строй, сражайся! Сервер работает 24/7
+            {content.hero_description || 'Настоящая анархия без правил. Выживай, строй, сражайся! Сервер работает 24/7'}
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
@@ -143,7 +158,7 @@ export default function Index() {
           <Card className="inline-block bg-card/50 backdrop-blur border-border p-6">
             <p className="text-sm text-muted-foreground mb-2">IP адрес сервера:</p>
             <code className="text-2xl font-mono font-bold text-primary">
-              play.anarchist-empire.ru
+              {content.server_ip || 'play.anarchist-empire.ru'}
             </code>
           </Card>
         </div>

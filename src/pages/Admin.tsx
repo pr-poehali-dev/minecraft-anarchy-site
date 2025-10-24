@@ -316,24 +316,41 @@ export default function Admin() {
             <Card className="p-6">
               <h2 className="text-2xl font-bold mb-6">Редактирование контента</h2>
               
-              <div className="space-y-4">
+              <form onSubmit={async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                let hasChanges = false;
+                
+                for (const [key, originalValue] of Object.entries(content)) {
+                  const newValue = formData.get(key) as string;
+                  if (newValue && newValue !== originalValue) {
+                    await handleContentUpdate(key, newValue);
+                    hasChanges = true;
+                  }
+                }
+                
+                if (hasChanges) {
+                  toast({
+                    title: 'Сохранено',
+                    description: 'Все изменения успешно применены',
+                  });
+                }
+              }} className="space-y-4">
                 {Object.entries(content).map(([key, value]) => (
                   <div key={key} className="space-y-2">
                     <Label htmlFor={key}>{key}</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        id={key}
-                        defaultValue={value}
-                        onBlur={(e) => {
-                          if (e.target.value !== value) {
-                            handleContentUpdate(key, e.target.value);
-                          }
-                        }}
-                      />
-                    </div>
+                    <Input
+                      id={key}
+                      name={key}
+                      defaultValue={value}
+                    />
                   </div>
                 ))}
-              </div>
+                <Button type="submit" className="gap-2">
+                  <Icon name="Save" size={16} />
+                  Сохранить изменения
+                </Button>
+              </form>
             </Card>
           </TabsContent>
 
