@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { api, type Privilege } from '@/lib/api';
+import { api, type Privilege, type FAQ } from '@/lib/api';
 
 export default function Index() {
   const [activeSection, setActiveSection] = useState('home');
@@ -16,6 +16,7 @@ export default function Index() {
   const [buyDialogOpen, setBuyDialogOpen] = useState(false);
   const [selectedPrivilege, setSelectedPrivilege] = useState<Privilege | null>(null);
   const [content, setContent] = useState<{ [key: string]: string }>({});
+  const [faqs, setFaqs] = useState<FAQ[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -25,6 +26,7 @@ export default function Index() {
   const loadData = async () => {
     loadPrivileges();
     loadContent();
+    loadFaqs();
   };
 
   const loadContent = async () => {
@@ -33,6 +35,15 @@ export default function Index() {
       setContent(data);
     } catch (error) {
       console.error('Failed to load content');
+    }
+  };
+
+  const loadFaqs = async () => {
+    try {
+      const data = await api.faqs.list();
+      setFaqs(data);
+    } catch (error) {
+      console.error('Failed to load FAQs');
     }
   };
 
@@ -314,41 +325,16 @@ export default function Index() {
           </div>
 
           <Accordion type="single" collapsible className="space-y-4">
-            <AccordionItem value="item-1" className="border border-border rounded-lg px-6 bg-card/50">
-              <AccordionTrigger className="text-left hover:no-underline">
-                Как зайти на сервер?
-              </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground">
-                Используйте IP адрес: play.anarchist-empire.ru в вашем клиенте Minecraft
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="item-2" className="border border-border rounded-lg px-6 bg-card/50">
-              <AccordionTrigger className="text-left hover:no-underline">
-                Какая версия Minecraft поддерживается?
-              </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground">
-                Сервер поддерживает последнюю версию Minecraft Java Edition
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="item-3" className="border border-border rounded-lg px-6 bg-card/50">
-              <AccordionTrigger className="text-left hover:no-underline">
-                Есть ли правила на сервере?
-              </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground">
-                Нет! Это сервер анархии - никаких правил и ограничений
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="item-4" className="border border-border rounded-lg px-6 bg-card/50">
-              <AccordionTrigger className="text-left hover:no-underline">
-                Как купить привилегию?
-              </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground">
-                Привилегии появятся на сайте. Следите за обновлениями!
-              </AccordionContent>
-            </AccordionItem>
+            {faqs.map((faq) => (
+              <AccordionItem key={faq.id} value={`item-${faq.id}`} className="border border-border rounded-lg px-6 bg-card/50">
+                <AccordionTrigger className="text-left hover:no-underline">
+                  {faq.question}
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  {faq.answer}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
           </Accordion>
         </div>
       </section>

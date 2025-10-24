@@ -1,0 +1,28 @@
+{
+  "tests": [
+    {
+      "name": "Get all FAQs",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": [],
+      "bodyMatcher": "type-only"
+    },
+    {
+      "name": "Create new FAQ",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "question": "Test question?",
+        "answer": "Test answer",
+        "order_index": 1
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "id": "number"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

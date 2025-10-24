@@ -6,6 +6,7 @@ const API_URLS = {
   orders: funcUrls.orders,
   privileges: funcUrls.privileges,
   content: funcUrls.content,
+  faqs: funcUrls.faqs,
 };
 
 export interface LoginResponse {
@@ -47,6 +48,13 @@ export interface Order {
 
 export interface ContentData {
   [key: string]: string;
+}
+
+export interface FAQ {
+  id: number;
+  question: string;
+  answer: string;
+  order_index: number;
 }
 
 export const api = {
@@ -148,6 +156,42 @@ export const api = {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ key, value }),
+      });
+      return response.json();
+    },
+  },
+
+  faqs: {
+    list: async (): Promise<FAQ[]> => {
+      const response = await fetch(API_URLS.faqs);
+      return response.json();
+    },
+    
+    create: async (question: string, answer: string, order_index: number): Promise<{ success: boolean; id?: number }> => {
+      const response = await fetch(API_URLS.faqs, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ question, answer, order_index }),
+      });
+      return response.json();
+    },
+    
+    update: async (id: number, question: string, answer: string): Promise<{ success: boolean }> => {
+      const response = await fetch(API_URLS.faqs, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id, question, answer }),
+      });
+      return response.json();
+    },
+    
+    delete: async (id: number): Promise<{ success: boolean }> => {
+      const response = await fetch(`${API_URLS.faqs}?id=${id}`, {
+        method: 'DELETE',
       });
       return response.json();
     },
