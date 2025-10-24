@@ -21,6 +21,12 @@ export default function Index() {
 
   useEffect(() => {
     loadData();
+    
+    const interval = setInterval(() => {
+      loadData();
+    }, 2000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const loadData = async () => {
